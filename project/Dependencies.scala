@@ -11,7 +11,8 @@ object Dependencies {
   val play = Seq(
     "com.typesafe.play" %% "play" % Versions.play % "provided",
     "com.typesafe.play" %% "play-json" % Versions.play % "provided",
-    "com.typesafe.play" %% "play-cache" % Versions.play % "provided"
+    "com.typesafe.play" %% "play-cache" % Versions.play % "provided",
+    "com.typesafe.play" %% "routes-compiler" % Versions.play % "provided"
   )
 
   val shapeless = Seq("com.chuusai" %% "shapeless" % "2.2.5")
@@ -22,7 +23,9 @@ object Dependencies {
   )
 
   val akka = Seq(
-    "com.typesafe.akka" %% "akka-actor" % Versions.akka % "provided"
+    "com.typesafe.akka" %% "akka-actor" % Versions.akka % "provided",
+    "com.typesafe.akka" %% "akka-cluster" % Versions.akka % "provided",
+    "com.typesafe.akka" %% "akka-cluster-metrics" % Versions.akka % "provided"
   )
 
   val test = Seq(
