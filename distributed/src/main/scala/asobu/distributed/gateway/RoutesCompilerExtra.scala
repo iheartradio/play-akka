@@ -4,7 +4,7 @@ package asobu.distributed.gateway
  * the yet to release routes compiler code, todo: remove this when its released
  */
 object RoutesCompilerExtra {
-  import play.routes.compiler.templates._
+  import play.routes.compiler.templates.tq
   /**
    * Encode the given String constant as a triple quoted String.
    *

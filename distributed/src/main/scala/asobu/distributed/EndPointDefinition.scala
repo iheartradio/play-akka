@@ -2,8 +2,10 @@ package asobu.distributed
 
 import akka.actor.ActorRef
 import asobu.distributed.gateway.Endpoint.Prefix
+import asobu.distributed.gateway.RoutesCompilerExtra._
+import asobu.distributed.service.Extractors.RemoteExtractor
 import asobu.distributed.service.RemoteExtractorDef
-import asobu.dsl.ExtractResult
+import asobu.dsl.{Extractor, ExtractResult}
 import play.api.mvc.{AnyContent, Request}
 import play.core.routing.RouteParams
 import play.routes.compiler.Route
@@ -19,9 +21,24 @@ trait EndpointDefinition {
   type T
   val routeInfo: Route
   val prefix: Prefix
-  def extract(routeParams: RouteParams, request: Request[AnyContent]): ExtractResult[T]
   def handlerActor: ActorRef
   def clusterRole: Option[String] //also indicate if this handlerActor is in a cluster
+
+  val defaultPrefix: String = {
+    if (prefix.value.endsWith("/")) "" else "/"
+  }
+
+  val documentation: (String, String, String) = {
+    val localPath = if (routeInfo.path.parts.isEmpty) ""
+    else defaultPrefix + encodeStringConstant(routeInfo.path.toString)
+    val pathInfo = prefix + localPath
+    (routeInfo.toString, pathInfo, routeInfo.call.toString)
+  }
+
+  val id: String = documentation.toString()
+
+  def remoteExtractor: RemoteExtractor[T]
+
 }
 
 object EndpointDefinition {
@@ -38,9 +55,7 @@ case class EndPointDefImpl[LExtracted <: HList, LParam <: HList, LExtra <: HList
 
   type T = LExtracted
 
-  def extract(routeParams: RouteParams, request: Request[AnyContent]): ExtractResult[LExtracted] = {
-    remoteExtractorDef.extractor.run((routeParams, request))
-  }
+  def remoteExtractor: RemoteExtractor[T] = remoteExtractorDef.extractor
 }
 
 /**
@@ -58,4 +73,6 @@ case class NullaryEndpointDefinition(
     import scala.concurrent.ExecutionContext.Implicits.global
     ExtractResult.pure(HNil)
   }
+
+  def remoteExtractor = Extractor.empty[(RouteParams, Request[AnyContent])]
 }

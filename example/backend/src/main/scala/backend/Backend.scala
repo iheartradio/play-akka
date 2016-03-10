@@ -4,9 +4,8 @@ import akka.actor._
 import akka.cluster.Cluster
 import akka.routing.FromConfig
 import akka.util.Timeout
-import asobu.distributed.gateway.EndpointRegistry.Add
-import asobu.distributed.EndpointDefinition
-import asobu.distributed.service.EndpointRegistryClient
+import asobu.distributed.{DefaultEndpointsRegistry, EndpointDefinition}
+import asobu.distributed.service.{EndpointsRegistryClientImp, EndpointsRegistryClient}
 import backend.endpoints.TestMeEndpoint
 import com.typesafe.config.ConfigFactory
 import backend.factorial._
@@ -14,6 +13,7 @@ import scala.collection.JavaConversions._
 import scala.concurrent.{Future, Await}
 import scala.concurrent.duration.{FiniteDuration, Duration}
 import scala.util.Try
+import concurrent.duration._
 
 /**
  * Booting a cluster backend node with all actors
@@ -38,16 +38,10 @@ object Backend extends App {
 
   // Deploy actors and services
   FactorialBackend startOn system
+  implicit val ao: Timeout = 30.seconds
 
   Cluster(system).registerOnMemberUp {
-    val registry = system.actorOf(FromConfig.props(), name = "endpointsRegistryRouter")
-    implicit val rec: EndpointRegistryClient = new EndpointRegistryClient {
-      import akka.pattern.ask
-      import concurrent.duration._
-      import concurrent.ExecutionContext.Implicits.global
-      implicit val ao: Timeout = 50.seconds //todo: be smarter about this
-      def add(endpointDefinition: EndpointDefinition): Future[Unit] = (registry ? Add(List(endpointDefinition))).map(_ => ())
-    }
+    implicit val rec: EndpointsRegistryClient = new EndpointsRegistryClientImp(DefaultEndpointsRegistry())
 
     val initControllers = Try {
       TestMeEndpoint()

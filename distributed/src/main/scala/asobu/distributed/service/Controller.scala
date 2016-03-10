@@ -31,7 +31,7 @@ trait Controller {
 
   def addAction(action: Action)(
     implicit
-    registryClient: EndpointRegistryClient,
+    registryClient: EndpointsRegistryClient,
     ec: ExecutionContext,
     sys: ActorSystem
   ): Future[EndpointDefinition] = {

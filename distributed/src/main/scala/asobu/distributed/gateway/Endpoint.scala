@@ -1,9 +1,13 @@
 package asobu.distributed.gateway
 
-import akka.actor.{ActorRef, ActorRefFactory}
+import java.util.concurrent.ThreadLocalRandom
+
+import akka.actor.{PoisonPill, ActorRef, ActorRefFactory}
 import akka.util.Timeout
 import asobu.distributed.service.Action.{DistributedResult, DistributedRequest}
 import asobu.distributed.EndpointDefinition
+import asobu.distributed.service.Extractors.RemoteExtractor
+import asobu.dsl.ExtractResult
 import play.api.mvc.Results._
 import play.api.mvc.{Result, AnyContent, Request}
 import play.core.routing
@@ -22,49 +26,42 @@ trait EndpointHandler {
 }
 
 case class Endpoint(definition: EndpointDefinition)(implicit arf: ActorRefFactory) extends EndpointRoute with EndpointHandler {
-  import ExecutionContext.Implicits.global
 
   type T = definition.T
 
-  import RoutesCompilerExtra._
   import definition._, definition.routeInfo._
   implicit val ak: Timeout = 10.minutes //todo: find the right place to configure this
-
-  lazy val defaultPrefix: String = {
-    if (prefix.value.endsWith("/")) "" else "/"
-  }
 
   private val handlerRef: ActorRef = {
     definition.clusterRole.fold(handlerActor) { role ⇒
       val props = ClusterRouters.adaptive(handlerActor.path.toStringWithoutAddress, role)
-      arf.actorOf(props, handlerActor.path.name + "-Router")
+      arf.actorOf(props, handlerActor.path.name + "-Router+" + ThreadLocalRandom.current().nextInt(1000)) //allows some redundancy in this router
     }
   }
+
+  def shutdown() = handlerRef ! PoisonPill
 
   def unapply(request: Request[AnyContent]): Option[RouteParams] = routeExtractors.unapply(request)
 
   def handle(routeParams: RouteParams, request: Request[AnyContent]): Future[Result] = {
     import akka.pattern.ask
+    import ExecutionContext.Implicits.global
+
     def handleMessageWithBackend(t: T): Future[Result] = {
       (handlerRef ? DistributedRequest(t, request.body)).collect {
         case r: DistributedResult ⇒ r.toResult
         case m                    ⇒ InternalServerError(s"Unsupported result from backend ${m.getClass}")
       }
     }
-    val message = definition.extract(routeParams, request)
+    val message = extractor.run((routeParams, request))
     message.fold[Future[Result]](
       Future.successful(_),
       (t: T) ⇒ handleMessageWithBackend(t)
     ).flatMap(identity)
-
+    Future.successful(Ok)
   }
 
-  lazy val documentation: (String, String, String) = {
-    val localPath = if (routeInfo.path.parts.isEmpty) ""
-    else defaultPrefix + encodeStringConstant(routeInfo.path.toString)
-    val pathInfo = prefix + localPath
-    (verb.toString, pathInfo, call.toString)
-  }
+  lazy val extractor: RemoteExtractor[T] = definition.remoteExtractor
 
   private lazy val routeExtractors: ParamsExtractor = {
     val localParts = if (path.parts.nonEmpty) StaticPart(defaultPrefix) +: path.parts else Nil

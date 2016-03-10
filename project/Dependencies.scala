@@ -5,7 +5,7 @@ object Dependencies {
   object Versions {
     val play = "2.4.6"
     val specs2 = "3.6.6"
-    val akka = "2.4.1"
+    val akka = "2.4.2"
   }
 
   val resolverSetting = resolvers ++= Seq(
@@ -36,7 +36,8 @@ object Dependencies {
   val akka = Seq(
     "com.typesafe.akka" %% "akka-actor" % Versions.akka % "provided",
     "com.typesafe.akka" %% "akka-cluster" % Versions.akka % "provided",
-    "com.typesafe.akka" %% "akka-cluster-metrics" % Versions.akka % "provided"
+    "com.typesafe.akka" %% "akka-cluster-metrics" % Versions.akka % "provided",
+    "com.typesafe.akka" %% "akka-distributed-data-experimental" % Versions.akka
   )
 
   val test = Seq(

@@ -84,9 +84,12 @@ case class RemoteExtractorDef[LExtracted <: HList, LParamExtracted <: HList, LRe
     requestExtractorDefinition: RequestExtractorDefinition[LRemoteExtra]
 )(implicit val prepend: Prepend.Aux[LParamExtracted, LRemoteExtra, LExtracted]) {
 
-  lazy val extractor: RemoteExtractor[LExtracted] = {
+  /**
+   * Cannot be lazy val which causes it to be mutable
+   * @return
+   */
+  def extractor: RemoteExtractor[LExtracted] = {
     val rpe = routeParamsExtractorBuilder()
-    import scala.concurrent.ExecutionContext.Implicits.global
     Extractor.zip(rpe.mapF(r ⇒ fromXor(r.v)), requestExtractorDefinition.apply())
   }
 

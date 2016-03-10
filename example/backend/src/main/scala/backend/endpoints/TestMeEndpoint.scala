@@ -2,11 +2,11 @@ package backend.endpoints
 
 import akka.actor.ActorSystem
 import asobu.distributed.service.Action.DistributedResult
-import asobu.distributed.service.{BodyExtractor, EndpointRegistryClient, DistributedController, Controller}
+import asobu.distributed.service.{BodyExtractor, EndpointsRegistryClient, DistributedController, Controller}
 import play.api.mvc.Results._
 
 
-case class TestMeEndpoint(implicit sys: ActorSystem, epc: EndpointRegistryClient) extends DistributedController {
+case class TestMeEndpoint(implicit sys: ActorSystem, epc: EndpointsRegistryClient) extends DistributedController {
   import concurrent.ExecutionContext.Implicits.global
   import asobu.dsl.DefaultExtractorImplicits._
 

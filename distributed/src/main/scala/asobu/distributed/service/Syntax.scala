@@ -13,7 +13,7 @@ trait Syntax {
 
   def handle[T](name0: String, extrs: Extractors[T])(bk: T ⇒ Future[DistributedResult])(
     implicit
-    rc: EndpointRegistryClient, ec: ExecutionContext, sys: ActorSystem
+    rc: EndpointsRegistryClient, ec: ExecutionContext, sys: ActorSystem
   ): Future[EndpointDefinition] = {
     val action = new Action {
       val name = actionName(name0)
