@@ -26,7 +26,7 @@ package object service {
     )
 
     val initControllers = Try(controllers(rec))
-    val apiDocReporter = ApiDocumentationReporter(registry)(routes ⇒ apiDocGenerator(rec.prefix, routes))
+    val apiDocReporter = ApiDocumentationReporter(registry)(routes ⇒ apiDocGenerator(prefix, routes))
 
     initControllers.foreach(apiDocReporter.report)
 
