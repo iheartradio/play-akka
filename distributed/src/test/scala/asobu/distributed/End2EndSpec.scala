@@ -3,7 +3,7 @@ package asobu.distributed
 import akka.actor.{ActorSystem, ActorRef}
 import akka.util.Timeout
 import asobu.distributed.gateway.{GatewayRouter, DefaultHandlerBridgeProps, Gateway}
-import asobu.distributed.service.{DistributedController, EndpointsRegistryClientImp, EndpointsRegistryClient}
+import asobu.distributed.service._
 import asobu.distributed.util.SpecWithActorCluster
 import junit.framework.TestResult
 import play.api.libs.json.{JsNumber, JsString, Json}
@@ -17,7 +17,7 @@ class End2EndSpec extends PlaySpecification with SpecWithActorCluster {
   import End2EndSpec._
   val gatewayAction = DistributedSystem.GatewayApp().action
   Thread.sleep(1000)
-  (new DistributedSystem.ServiceBackend.App).initControllers
+  (new DistributedSystem.ServiceBackend.App)
   Thread.sleep(1000)
 
   "GET /cats/:catId returns OK Json response" >> {
@@ -80,10 +80,8 @@ object End2EndSpec {
       }
 
       case class App(implicit system: ActorSystem) {
-        val registry: EndpointsRegistry = DefaultEndpointsRegistry()
 
-        implicit val rec: EndpointsRegistryClient = EndpointsRegistryClientImp(registry)
-        val initControllers = Try {
+        init { implicit rc ⇒
           List(
             TestController(testServiceBackendRef)
           )
