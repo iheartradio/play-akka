@@ -45,7 +45,6 @@ object Backend extends App {
   val studentService = system.actorOf(StudentService.props)
   implicit val ao: Timeout = 30.seconds
 
-  implicit val prefix = Prefix("/api")
   lazy val swaggerGenerator = SwaggerSpecGenerator("backend")(getClass.getClassLoader)
 
   implicit val apiDocGenerator = (prefix: Prefix, routes: Seq[Route]) => {
@@ -53,9 +52,8 @@ object Backend extends App {
     Some(doc)
   }
 
-  init { implicit rec =>
-    List(
-      AMixedController(factorialBE, studentService)
-    )
-  }
+  init(Prefix("/api"))(
+    AMixedController(factorialBE, studentService)
+  )
+
 }
