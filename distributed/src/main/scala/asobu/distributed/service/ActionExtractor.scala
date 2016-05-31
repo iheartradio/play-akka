@@ -42,7 +42,7 @@ trait ActionExtractor[TMessage] {
 
   val remoteExtractorDef: RemoteExtractorDef[LToSend, LParam, LExtra]
 
-  def localExtract(dr: DistributedRequest[LToSend]): ExtractResult[TMessage]
+  def localExtract(dr: DistributedRequest[LToSend])(implicit ex: ExecutionContext): ExtractResult[TMessage]
 }
 
 object ActionExtractor {
@@ -78,8 +78,7 @@ object ActionExtractor {
       type LExtra = LRemoteExtra
       val remoteExtractorDef = RemoteExtractorDef(rpeb, remoteRequestExtractorDefs)
 
-      def localExtract(dr: DistributedRequest[LToSend]): ExtractResult[TMessage] = {
-        import scala.concurrent.ExecutionContext.Implicits.global
+      def localExtract(dr: DistributedRequest[LToSend])(implicit executionContext: ExecutionContext): ExtractResult[TMessage] = {
         bodyExtractor.run(dr.body).map { body ⇒
           val repr = combineTo(dr.extracted, body)
           gen.from(repr)
