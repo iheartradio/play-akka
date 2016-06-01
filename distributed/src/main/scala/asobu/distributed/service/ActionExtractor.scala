@@ -30,6 +30,7 @@ import scala.concurrent.{ExecutionContext, Future}
 /**
  * Extractor for action to extract information out of request either at the gateway side (`remoteExtractorDef`)
  * or at the service side (`localExtract`)
+ *
  * @tparam TMessage
  */
 trait ActionExtractor[TMessage] {
@@ -100,8 +101,18 @@ object ActionExtractor {
       combineTo: CombineTo[TRepr, HNil, TRepr],
       rpeb: RouteParamsExtractorBuilder[TRepr]
     ): ActionExtractor.Aux[TMessage, TRepr, TRepr, HNil] = apply(BodyExtractor.empty)
-  }
 
+    def apply[LParamExtracted <: HList, LRemoteExtra <: HList, LBody <: HList, LExtracted <: HList, TRepr <: HList](
+      remoteRequestExtractorDefs: RequestExtractorDefinition[LRemoteExtra]
+    )(implicit
+      gen: LabelledGeneric.Aux[TMessage, TRepr],
+      r: RestOf.Aux[TRepr, LRemoteExtra, LParamExtracted],
+      prep: Prepend.Aux[LParamExtracted, LRemoteExtra, LExtracted],
+      combineTo: CombineTo[LExtracted, HNil, TRepr],
+      rpeb: RouteParamsExtractorBuilder[LParamExtracted]): ActionExtractor.Aux[TMessage, LExtracted, LParamExtracted, LRemoteExtra] =
+      apply(remoteRequestExtractorDefs, BodyExtractor.empty)
+
+  }
   def build[TMessage] = new builder[TMessage]
 
 }
