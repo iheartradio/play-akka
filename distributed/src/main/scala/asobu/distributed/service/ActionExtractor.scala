@@ -128,9 +128,9 @@ case class RemoteExtractorDef[LExtracted <: HList, LParamExtracted <: HList, LRe
    *
    * @return
    */
-  def extractor(implicit ex: ExecutionContext): RemoteExtractor[LExtracted] = {
+  def extractor(implicit ec: ExecutionContext): RemoteExtractor[LExtracted] = {
     val rpe = routeParamsExtractorBuilder()
-    Extractor.zip(rpe.mapF(r ⇒ fromXor(r.v)), requestExtractorDefinition.apply())
+    Extractor.zip(rpe.mapF(r ⇒ fromXor(r.v)), requestExtractorDefinition.apply(ec))
   }
 
 }
