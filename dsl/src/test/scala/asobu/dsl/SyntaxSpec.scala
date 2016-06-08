@@ -1,7 +1,7 @@
 package asobu.dsl
 
-import asobu.dsl
-import asobu.dsl._
+import akka.actor.ActorSystem
+import akka.stream.ActorMaterializer
 import asobu.dsl.Syntax._
 import asobu.dsl.SyntaxFacilitators._
 import asobu.dsl.extractors.HeaderExtractors
@@ -63,6 +63,9 @@ class SyntaxSpec extends PlaySpecification {
       case _                                      ⇒ Future.successful(Unauthorized("invalid session"))
     }
   }
+
+  implicit val system = ActorSystem()
+  implicit val mat = ActorMaterializer()
 
   "end to end syntax" >> {
 

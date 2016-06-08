@@ -1,15 +1,19 @@
 package asobu.dsl
 
 import asobu.dsl.Syntax._
+import akka.actor.ActorSystem
+import akka.stream.ActorMaterializer
 import play.api.mvc.Results._
 import play.api.mvc.{EssentialAction, Request}
 import play.api.test._
 import shapeless.HNil
 import shapeless.syntax.singleton._
-
 import scala.concurrent.Future
 
 object ControllerMethodBuilderSpec extends PlaySpecification {
+
+  implicit val system = ActorSystem()
+  implicit val materializer = ActorMaterializer()
 
   case class ReqMessage(age: Int, name: String, id: Int)
 
