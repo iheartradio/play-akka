@@ -12,7 +12,8 @@ object Dependencies {
     Resolver.sonatypeRepo("releases"),
     Resolver.sonatypeRepo("snapshots"),
     Resolver.bintrayRepo("scalaz", "releases"),
-    Resolver.bintrayRepo("kailuowang", "maven")
+    Resolver.bintrayRepo("kailuowang", "maven"),
+    Resolver.bintrayRepo("iheartradio", "maven")
   )
 
 
