@@ -43,7 +43,7 @@ object Dependencies {
   )
 
   val kanaloa = Seq(
-    "com.iheart" %% "kanaloa" % "0.3.0"
+    "com.iheart" %% "kanaloa-cluster" % "0.4.0-RC2"
   )
 
   val test = Seq(
