@@ -8,10 +8,9 @@ import api.ErrorResult
 import asobu.distributed.gateway.AbstractKanaloaBridge
 import kanaloa.reactive.dispatcher._
 import play.api.Configuration
-import KanaloaBridge._
 import concurrent.duration._
 
-class KanaloaBridge @Inject() (implicit configuration: Configuration, system: ActorSystem) extends AbstractKanaloaBridge {
+class KanaloaBridge @Inject() (configuration: Configuration, system: ActorSystem) extends AbstractKanaloaBridge()(configuration, system, KanaloaBridge.clusterStartupTimeout) {
 
   override protected def resultChecker: ResultChecker = {
     case e: ErrorResult[_] ⇒ Left(e.toString)
@@ -20,5 +19,5 @@ class KanaloaBridge @Inject() (implicit configuration: Configuration, system: Ac
 }
 
 object KanaloaBridge {
-  implicit val timeout: Timeout = 30.seconds
+  val clusterStartupTimeout: Timeout = 30.seconds
 }
