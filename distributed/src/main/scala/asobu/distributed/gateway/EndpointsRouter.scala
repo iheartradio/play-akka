@@ -1,6 +1,7 @@
 package asobu.distributed.gateway
 
 import akka.agent.Agent
+import com.google.inject.Inject
 import play.api.mvc.{RequestHeader, Result}
 import play.api.mvc.Results.NotFound
 import scala.concurrent.{Future, ExecutionContext}
@@ -17,6 +18,11 @@ class EndpointsRouter(
       NotFound(s"Action or remote endpoints not found for ${req.path}")
     )
 )(implicit ex: ExecutionContext) {
+
+  @Inject def this()(implicit ex: ExecutionContext) = this(req ⇒ Future.successful(
+    NotFound(s"Action or remote endpoints not found for ${req.path}")
+  ))
+
   type Handler = PartialFunction[RequestHeader, Future[Result]]
 
   val endpointsAgent = Agent[(Handler, List[Endpoint])]((PartialFunction(onNotFound), Nil))
