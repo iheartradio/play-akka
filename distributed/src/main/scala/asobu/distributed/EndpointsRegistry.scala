@@ -109,7 +109,7 @@ class EndpointsRegistryUpdater(registry: EndpointsRegistry) extends Actor with A
 
 object EndpointsRegistryUpdater {
 
-  def props(registry: EndpointsRegistry) = Props(new EndpointsRegistryUpdater(registry))
+  def props(registry: EndpointsRegistry) = Props(new EndpointsRegistryUpdater(registry)).withDeploy(Deploy.local)
 
   sealed trait UpdateRequest
 
