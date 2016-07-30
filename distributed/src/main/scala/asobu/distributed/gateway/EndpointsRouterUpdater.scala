@@ -99,7 +99,7 @@ object EndpointsRouterUpdater {
     endpointsRouter: EndpointsRouter,
     bridgeProps: HandlerBridgeProps = HandlerBridgeProps.default
   )(implicit ec: ExecutionContext, interpreter: Interpreter) =
-    Props(new EndpointsRouterUpdater(registry, endpointsRouter, bridgeProps))
+    Props(new EndpointsRouterUpdater(registry, endpointsRouter, bridgeProps)).withDeploy(Deploy.local)
 
   private[gateway] def sortOutEndpoints(existing: List[Endpoint], toUpdate: List[EndpointDefinition]): SortResult = {
     val (toKeep, toPurge) = existing.partition { ep ⇒

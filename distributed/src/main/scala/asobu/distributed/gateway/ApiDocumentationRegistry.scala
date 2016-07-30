@@ -1,6 +1,6 @@
 package asobu.distributed.gateway
 
-import akka.actor.{Props, ActorLogging, Actor, ActorRef}
+import akka.actor._
 import akka.cluster.ddata.Replicator._
 import asobu.distributed.EndpointsRegistry
 import asobu.distributed.gateway.ApiDocumentationRegistry.Retrieve
@@ -31,5 +31,5 @@ class ApiDocumentationRegistry(endpointsRegistry: EndpointsRegistry) extends Act
 
 object ApiDocumentationRegistry {
   case object Retrieve
-  def props(registry: EndpointsRegistry) = Props(new ApiDocumentationRegistry(registry))
+  def props(registry: EndpointsRegistry) = Props(new ApiDocumentationRegistry(registry)).withDeploy(Deploy.local)
 }

@@ -26,7 +26,7 @@ class ClusterHealthCheck(registry: EndpointsRegistry) extends Actor with ActorLo
 object ClusterHealthCheck {
 
   def props(registry: EndpointsRegistry): Props = {
-    val checkerProps = Props(new ClusterHealthCheck(registry))
+    val checkerProps = Props(new ClusterHealthCheck(registry)).withDeploy(Deploy.local)
     ClusterSingletonManager.props(
       singletonProps     = checkerProps,
       terminationMessage = PoisonPill,
