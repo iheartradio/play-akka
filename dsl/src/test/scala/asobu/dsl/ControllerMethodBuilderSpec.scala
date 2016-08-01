@@ -12,14 +12,11 @@ import scala.concurrent.Future
 
 object ControllerMethodBuilderSpec extends PlaySpecification {
 
-  implicit val system = ActorSystem()
-  implicit val materializer = ActorMaterializer()
-
   case class ReqMessage(age: Int, name: String, id: Int)
 
   "Builder " should {
 
-    "build from header extractor" in {
+    "build from header extractor" in new WithSystem {
       val method = handle(
         Extractor(req ⇒ 'name ->> req.headers("name") :: HNil),
         (rm: Request[ReqMessage]) ⇒ Future.successful(Ok(rm.body.name + rm.body.id))
@@ -35,7 +32,7 @@ object ControllerMethodBuilderSpec extends PlaySpecification {
 
     }
 
-    "build directly from director" in {
+    "build directly from director" in new WithSystem {
       val method = handle((rm: Request[ReqMessage]) ⇒ Future.successful(Ok(rm.body.name + rm.body.id)))
 
       val req = FakeRequest()
